@@ -4,7 +4,10 @@ from sqlalchemy import create_engine
 
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///colab_db.sqlite", echo=True)
+from tasks_app.model import Base, Task
+
+
+engine = create_engine("sqlite:///tasks_db.sqlite", echo=False)
 
 Base.metadata.create_all(engine)
 
@@ -28,8 +31,7 @@ class TasksStorage:
 
     def change(self, task_id, new_task_body):
         task_object = session.query(Task).get(task_id)
-        task_object.body = new_task_body  # слева доступ к полю объекта
-        session.commit()
+        task_object.body = new_task_body
 
     def list(self):
         return session.query(Task).all()
@@ -43,8 +45,10 @@ class TasksStorage:
 # tasks = [] Задачи уже не tasks, а в TasksStorage
 
 while True:
-    command = input(
-        "Введите команду [add, remove, change, list, exit, check, uncheck]: "
+    command = (
+        input("Введите команду [add, remove, change, list, exit, check, uncheck]: ")
+        .strip()
+        .lower()
     )
 
     if command == "add":
@@ -54,8 +58,13 @@ while True:
 
     elif command == "remove":
         number = int(input("Введите ID задания: "))
-        TasksStorage().remove(number)
-        print("Задание успешно удалено")
+
+        try:
+            TasksStorage().remove(number)
+        except Exception:
+            print("Не удалось удалить задание")
+        else:
+            print("Задание успешно удалено")
 
     elif command == "change":
         number = int(input("Введите ID задания: "))
@@ -72,8 +81,8 @@ while True:
 
     elif command == "check":
         number = int(input("Введите ID задания: "))
-        TasksStorage.change_status(number, True)
+        TasksStorage().change_status(number, True)
 
     elif command == "uncheck":
         number = int(input("Введите ID задания: "))
-        TasksStorage.change_status(number, False)
+        TasksStorage().change_status(number, False)
