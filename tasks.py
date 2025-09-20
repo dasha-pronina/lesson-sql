@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from tasks_app.model import Base, Task
 
+from tabulate import tabulate
 
 engine = create_engine("sqlite:///tasks_db.sqlite", echo=False)
 
@@ -73,10 +74,21 @@ while True:
         print("Задание успешно изменено")
 
     elif command == "list":
+        tasks = []
+
         for task in TasksStorage().list():
-            print(
-                f"ID {task.id}, изменено {task.updated_at}, создано {task.created_at} - {task.is_active} - {task.body}"
-            )
+            t = task.is_active
+
+            if t is True:
+                t = "Да"
+            else:
+                t = "Нет"
+            body = task.body[:1].title() + task.body[1:]
+            tasks.append([task.id, task.created_at, task.updated_at, t, body])
+
+        print(
+            tabulate(tasks, headers=["ID", "Создано", "Изменено", "Активно?", "Задача"])
+        )
 
     elif command == "exit":
         break
