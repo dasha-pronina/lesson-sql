@@ -74,7 +74,9 @@ while True:
 
     elif command == "list":
         for task in TasksStorage().list():
-            print(f"ID {task.id} - {task.is_active} - {task.body}")
+            print(
+                f"ID {task.id}, изменено {task.updated_at}, создано {task.created_at} - {task.is_active} - {task.body}"
+            )
 
     elif command == "exit":
         break
